@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor de Obras</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: #2c3e50; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Cabecalho */
+        .cabecalho { height: 60px; background: #fff; display: flex; align-items: center; padding: 0 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 100; }
+        .titulo-header { font-family: Georgia, serif; font-style: italic; color: #1e3a8a; font-weight: bold; margin: 0 auto; }
+        
+        /* Area de Leitura */
+        .area-leitura { flex: 1; overflow-x: auto; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .pagina { width: 14cm; height: 21cm; background: #fffaf0; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; flex-shrink: 0; padding: 2cm; box-sizing: border-box; }
+        .texto-pagina { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; text-align: justify; }
+        
+        /* Controles */
+        .btn-nav { position: fixed; top: 50%; background: #fff; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .btn-ant { left: 20px; } .btn-prox { right: 20px; }
+    </style>
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div id="titulo-obra" class="titulo-header">Carregando livro...</div>
+    </header>
+
+    <main class="area-leitura" id="leitor">
+        </main>
+
+    <button class="btn-nav btn-ant" onclick="mudarPagina(-1)">❮</button>
+    <button class="btn-nav btn-prox" onclick="mudarPagina(1)">❯</button>
+
+    <script>
+        let paginas = [];
+        let indiceAtual = 0;
+
+        async function carregarLivro() {
+            try {
+                // Tenta buscar o arquivo livro.json na mesma pasta do index.html
+                const response = await fetch('livro.json');
+                const dados = await response.json();
+                
+                document.getElementById('titulo-obra').innerText = dados.titulo;
+                
+                // Extrai o conteúdo e cria páginas
+                const containerTemporario = document.createElement('div');
+                containerTemporario.innerHTML = dados.conteudoLivroHTML;
+                
+                // Aqui simplificamos: pegamos o texto e montamos a estrutura de leitura
+                montarLeitor(containerTemporario.innerText);
+            } catch (e) {
+                document.getElementById('titulo-obra').innerText = "Erro ao carregar livro.json";
+                console.error(e);
+            }
+        }
+
+        function montarLeitor(textoCompleto) {
+            const leitor = document.getElementById('leitor');
+            // Logica simples de quebra de pagina (pode ser refinada depois)
+            const partes = textoCompleto.match(/.{1,2500}/g) || [textoCompleto];
+            
+            partes.forEach((parte, i) => {
+                const div = document.createElement('div');
+                div.className = 'pagina';
+                div.style.display = i === 0 ? 'block' : 'none';
+                div.innerHTML = `<div class="texto-pagina">${parte.replace(/\n/g, '<br>')}</div>`;
+                leitor.appendChild(div);
+                paginas.push(div);
+            });
+        }
+
+        function mudarPagina(direcao) {
+            paginas[indiceAtual].style.display = 'none';
+            indiceAtual = Math.max(0, Math.min(paginas.length - 1, indiceAtual + direcao));
+            paginas[indiceAtual].style.display = 'block';
+        }
+
+        carregarLivro();
+    </script>
+</body>
+</html>
