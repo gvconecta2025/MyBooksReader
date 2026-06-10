@@ -3,114 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Biblioteca Digital Premium</title>
+    <title>Leitor Digital Premium</title>
     <style>
         /* =========================================
-           1. GEOMETRIA E VARIÁVEIS DE CÁLCULO
+           1. ESTILOS DO PALCO E INTERFACE LUXO
            ========================================= */
         :root {
             --tamanho-fonte: 18px; 
+            --entrelinha: 1.6;
             
-            /* DESKTOP (14x21cm exatos da versão original) */
+            /* MEDIDAS DESKTOP (Proporção Áurea) */
             --largura-pagina: 14cm;
             --altura-pagina: 21cm;
-            --gap-paginas: 40px;
-            --pad-h: 2.5cm; /* Margens generosas no PC */
+            --gap-paginas: 50px;
+            --pad-h: 2.2cm; 
             --pad-v: 2cm;
         }
 
         @media (max-width: 900px) {
             :root {
                 --tamanho-fonte: 16px; 
-                /* MOBILE (Mede o ecrã dinamicamente, mantendo margens mínimas de respiro) */
-                --largura-pagina: calc(100vw - 20px); /* 10px de margem externa do telemóvel */
-                --altura-pagina: calc(100vh - 120px); /* Altura descontando cabecalho e rodapé */
-                --gap-paginas: 20px; 
-                --pad-h: 25px; /* Margem MÍNIMA interna lateral da página de papel */
-                --pad-v: 35px; /* Margem MÍNIMA interna de topo/fundo */
+                /* MEDIDAS MOBILE (Casamento Perfeito com a Tela) */
+                --largura-pagina: calc(100vw - 32px); /* Margem externa exata de respiro */
+                --altura-pagina: calc(100vh - 110px); 
+                --gap-paginas: 24px; 
+                --pad-h: 24px; /* Margem interna interna da folha */
+                --pad-v: 30px;
             }
         }
 
-        /* Anti-Highlight para dispositivos móveis */
-        * { -webkit-tap-highlight-color: transparent; }
-
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background-color: #2c3e50; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background-color: #1a252f; }
         
-        .cabecalho-minimo { height: 45px; background-color: #ffffff; border-bottom: 1px solid #dadce0; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 100; flex-shrink: 0; }
-        .grupo-esquerda { display: flex; align-items: center; gap: 10px; }
-        .titulo-header { font-family: 'Georgia', serif; font-size: 15px; font-weight: bold; font-style: italic; color: #1e3a8a; }
+        /* Cabeçalho Minimalista */
+        .cabecalho-luxo { height: 42px; background-color: #ffffff; border-bottom: 1px solid #dadce0; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; flex-shrink: 0; }
+        .grupo-esquerda { display: flex; align-items: center; gap: 12px; }
+        .titulo-header { font-family: 'Georgia', serif; font-size: 13px; font-weight: bold; font-style: italic; color: #1e3a8a; max-width: 40vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .btn-acao-header { background-color: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-acao-header:hover { background-color: #1a73e8; color: #ffffff; }
+        .btn-header { background-color: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; border-radius: 4px; padding: 4px 12px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-header:hover { background-color: #1a73e8; color: #ffffff; }
 
         .controles-fonte { display: flex; gap: 6px; display: none; }
-        .btn-fonte { background-color: #ffffff; color: #3c4043; border: 1px solid #dadce0; border-radius: 4px; padding: 4px 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-fonte:hover { background-color: #f1f3f4; border-color: #1a73e8; color: #1a73e8; }
+        .btn-fonte { background-color: #ffffff; color: #3c4043; border: 1px solid #dadce0; border-radius: 4px; padding: 3px 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-fonte:hover { border-color: #1a73e8; color: #1a73e8; }
 
         .conteudo-principal { display: flex; flex: 1; overflow: hidden; position: relative; width: 100%; }
 
         /* =========================================
-           2. TELA 1: A BIBLIOTECA
+           2. TELA 1: ACERVO (CARDS)
            ========================================= */
-        #tela-biblioteca { width: 100%; height: 100%; overflow-y: auto; background-color: #f0f2f5; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
-        .grid-livros { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; max-width: 1000px; width: 100%; margin-top: 20px; }
+        #tela-biblioteca { width: 100%; height: 100%; overflow-y: auto; background-color: #f4f6f8; padding: 40px 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+        .grid-livros { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; max-width: 1000px; width: 100%; margin-top: 20px; }
         
-        .cartao-livro { background: #ffffff; border: 1px solid #dadce0; border-radius: 8px; width: 220px; height: 140px; padding: 20px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; box-sizing: border-box; }
-        .cartao-livro:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(26,115,232,0.15); border-color: #1a73e8; }
-        .cartao-livro h3 { margin: 0; font-family: 'Georgia', serif; font-size: 16px; color: #1e3a8a; }
-        .cartao-livro .badge-leitura { margin-top: 15px; font-size: 11px; background: #e8f0fe; color: #1a73e8; padding: 5px 12px; border-radius: 12px; font-weight: bold; }
+        .cartao-livro { background: #ffffff; border: 1px solid #dadce0; border-radius: 12px; width: 220px; height: 140px; padding: 24px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: 0.3s; box-sizing: border-box; }
+        .cartao-livro:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(26,115,232,0.15); border-color: #1a73e8; }
+        .cartao-livro h3 { margin: 0; font-family: 'Georgia', serif; font-size: 15px; color: #1e3a8a; line-height: 1.4; }
+        .cartao-livro .badge-leitura { margin-top: 16px; font-size: 11px; background: #e8f0fe; color: #1a73e8; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
 
-        .status-scanner { color: #5f6368; font-size: 14px; text-align: center; margin-bottom: 20px; font-style: italic; }
+        .status-scanner { color: #5f6368; font-size: 14px; font-style: italic; }
 
         /* =========================================
-           3. TELA 2: O LEITOR DE PRECISÃO (PÁGINA A PÁGINA)
+           3. TELA 2: LEITOR DE ALTA FIDELIDADE
            ========================================= */
         #tela-leitor { width: 100%; height: 100%; display: none; flex-direction: row; }
         
-        .coluna-menu { width: 260px; background-color: #f8f9fa; border-right: 2px solid #dadce0; padding: 15px; display: flex; flex-direction: column; z-index: 50; flex-shrink: 0; }
+        .coluna-menu { width: 260px; background-color: #ffffff; border-right: 1px solid #dadce0; padding: 15px; display: flex; flex-direction: column; z-index: 50; flex-shrink: 0; }
         .lista-pilulas { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; padding-right: 5px; }
-        .botao-menu { background-color: #ffffff; border: 1px solid #dadce0; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 500; color: #3c4043; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
+        .botao-menu { background-color: #f8f9fa; border: 1px solid #dadce0; border-radius: 8px; padding: 12px; font-size: 13px; font-weight: 500; color: #3c4043; cursor: pointer; transition: 0.2s; display: flex; align-items: center; }
         .botao-menu:hover { background-color: #e8f0fe; border-color: #1a73e8; }
-        .botao-menu.ativo { background-color: #1a73e8; color: #ffffff; border-color: #1a73e8; box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3); }
+        .botao-menu.ativo { background-color: #1a73e8; color: #ffffff; border-color: #1a73e8; }
         .texto-botao { pointer-events: none; }
         .contador-palavras { display: none; } 
 
-        .coluna-livro { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background-color: #2c3e50; min-width: 0; min-height: 0; }
+        .coluna-livro { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background-color: #1a252f; }
         
-        .botao-navegacao { position: absolute; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; border-radius: 50%; background-color: rgba(255,255,255,0.9); border: 1px solid #dadce0; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: #1a73e8; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; font-size: 24px; font-weight: bold; transition: 0.2s; }
-        .botao-navegacao:active { background-color: #e8f0fe; transform: translateY(-50%) scale(0.95); }
-        .btn-esquerda { left: 20px; } .btn-direita { right: 20px; }
+        /* Botões de Navegação Ultra Discretos */
+        .botao-navegacao { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background-color: rgba(255,255,255,0.95); border: 1px solid #dadce0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); color: #1a73e8; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; font-size: 20px; font-weight: bold; transition: 0.2s; -webkit-user-select: none; user-select: none; }
+        .btn-esquerda { left: 15px; } .btn-direita { right: 15px; }
 
-        /* A ESTRUTURA HORIZONTAL FLUIDA (O Scroll Destravado) */
+        /* Container de Rolagem Horizontal */
         .secao-livro { 
             display: none; flex-direction: row; align-items: center; justify-content: flex-start;
-            padding: 0 40px; box-sizing: border-box; width: 100%; height: 100%; 
+            padding: 0 45px; box-sizing: border-box; width: 100%; height: 100%; 
             overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth;
-            scroll-snap-type: x mandatory; /* Ancora a página ao rolar */
+            scroll-snap-type: x mandatory;
         }
         .secao-livro.ativo { display: flex; }
         
         .container-leitura { position: relative; width: max-content; margin: 0 auto; display: flex; align-items: center; height: var(--altura-pagina); }
         .camada-fundo { display: flex; gap: var(--gap-paginas); }
         
-        /* O "PAPEL" BRANCO */
+        /* A FOLHA DE PAPEL */
         .pagina-visual { 
             width: var(--largura-pagina) !important; 
             height: var(--altura-pagina) !important; 
             background-color: #fffaf0; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4); 
             border-radius: 6px; position: relative; flex-shrink: 0; 
             scroll-snap-align: center;
         }
+        .pagina-branca { display: none !important; }
         
-        /* O TEXTO (Quebra em colunas exatas sobre o papel) */
+        /* =========================================
+           4. O MOTOR REVOLUCIONÁRIO DE TEXTO & TABELAS
+           ========================================= */
         .camada-texto { 
             position: absolute !important; 
             top: var(--pad-v) !important; 
             left: var(--pad-h) !important; 
             height: calc(var(--altura-pagina) - (var(--pad-v) * 2)) !important; 
-            
-            /* Permite o texto esticar horizontalmente sem limites */
             width: auto !important; 
             min-width: 100% !important;
             max-width: none !important;
@@ -118,40 +118,56 @@
             column-width: calc(var(--largura-pagina) - (var(--pad-h) * 2)) !important; 
             column-gap: calc((var(--pad-h) * 2) + var(--gap-paginas)) !important; 
             column-fill: auto !important;
+            outline: none !important;
+        }
 
-            /* Design de Fonte: Hifenização + Alinhamento à Esquerda */
+        /* FORÇA COMPORTAMENTO E ZOOMS DE FONTE (IGNORA MARCAÇÕES DO PC) */
+        .camada-texto, .camada-texto * { 
             font-size: var(--tamanho-fonte) !important; 
-            line-height: 1.6 !important; 
-            font-family: Georgia, serif !important;
+            line-height: var(--entrelinha) !important; 
+            font-family: 'Georgia', serif !important;
             color: #2c3e50 !important;
-            text-align: left !important; 
-            hyphens: auto !important;    
+            text-align: left !important; /* Mantém elegante à esquerda */
+            hyphens: auto !important;    /* Ativa hifenização */
             -webkit-hyphens: auto !important;
             word-wrap: break-word !important;
-            
-            outline: none !important; /* Segurança visual */
         }
         
-        .numero-pagina { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 11px; color: #7f8c8d; font-weight: bold; }
+        /* DOMESTICAÇÃO ABSOLUTA DE TABELAS (Não quebram o layout) */
+        .camada-texto table {
+            max-width: 100% !important;
+            width: 100% !important;
+            table-layout: fixed !important; /* Força as colunas a respeitarem o espaço */
+            border-collapse: collapse !important;
+            margin: 15px 0 !important;
+            break-inside: avoid !important; /* Impede a tabela de se partir ao meio entre folhas */
+        }
+        .camada-texto td, .camada-texto th {
+            padding: 6px 8px !important;
+            border: 1px solid #cbd5e1 !important;
+            word-break: break-word !important; /* Força quebra de texto dentro da célula */
+        }
 
-        /* MODO MOBILE OVERLAY E AJUSTES */
-        .btn-mobile-menu { display: none; background: none; border: none; font-size: 22px; color: #1e3a8a; cursor: pointer; padding: 0; margin-right: 15px; }
-        .overlay { display: none; position: fixed; top: 45px; left: 0; width: 100vw; height: calc(100vh - 45px); background: rgba(0,0,0,0.5); z-index: 40; }
+        .numero-pagina { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 11px; color: #7f8c8d; font-weight: bold; }
+
+        /* Responsividade Mobile */
+        .btn-mobile-menu { display: none; background: none; border: none; font-size: 20px; color: #1e3a8a; cursor: pointer; padding: 0; margin-right: 12px; }
+        .overlay { display: none; position: fixed; top: 42px; left: 0; width: 100vw; height: calc(100vh - 42px); background: rgba(0,0,0,0.5); z-index: 40; }
         
         @media (max-width: 900px) {
             .btn-mobile-menu { display: block; }
-            .coluna-menu { position: absolute; left: -100%; height: 100%; box-shadow: 5px 0 20px rgba(0,0,0,0.3); transition: left 0.3s ease; }
+            .coluna-menu { position: absolute; left: -100%; top: 42px; height: calc(100vh - 42px); box-shadow: 5px 0 20px rgba(0,0,0,0.2); transition: left 0.3s ease; }
             .coluna-menu.aberto { left: 0; }
             .overlay.ativo { display: block; }
-            .secao-livro { padding: 0 10px !important; }
-            .btn-esquerda { left: 5px; } .btn-direita { right: 5px; }
-            .botao-navegacao { width: 40px; height: 40px; font-size: 20px; top: unset; bottom: 20px; transform: none; background-color: rgba(255,255,255,0.95); z-index: 200; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+            .secao-livro { padding: 0 16px !important; }
+            .btn-esquerda { left: 4px; } .btn-direita { right: 4px; }
+            .botao-navegacao { width: 38px; height: 38px; font-size: 18px; top: unset; bottom: 20px; transform: none; background-color: rgba(255,255,255,0.95); }
         }
     </style>
 </head>
 <body>
 
-    <header class="cabecalho-minimo">
+    <header class="cabecalho-luxo">
         <div class="grupo-esquerda">
             <button class="btn-mobile-menu" id="btn-toggle-menu" onclick="toggleMenuMobile()">☰</button>
             <span class="titulo-header" id="nome-header">Acervo Digital</span>
@@ -159,32 +175,30 @@
         
         <div class="grupo-esquerda">
             <div class="controles-fonte" id="controles-fonte">
-                <button class="btn-fonte" onclick="alterarTamanhoFonte(-2)">A-</button>
-                <button class="btn-fonte" onclick="alterarTamanhoFonte(2)">A+</button>
+                <button class="btn-fonte" onclick="alterarTamanhoFonte(-1)" title="Diminuir Letra">A-</button>
+                <button class="btn-fonte" onclick="alterarTamanhoFonte(1)" title="Aumentar Letra">A+</button>
             </div>
-            <button class="btn-acao-header" onclick="voltarParaBiblioteca()" id="btn-voltar-biblio" style="display:none;">← Catálogo</button>
+            <button class="btn-header" onclick="voltarParaBiblioteca()" id="btn-voltar-biblio" style="display:none;">← Catálogo</button>
         </div>
     </header>
 
     <div class="overlay" id="overlay" onclick="toggleMenuMobile()"></div>
 
     <div class="conteudo-principal">
-        
         <div id="tela-biblioteca">
-            <div class="status-scanner" id="status-scanner">Sincronizando biblioteca com a nuvem...</div>
+            <div class="status-scanner" id="status-scanner">Sincronizando acervo com a nuvem...</div>
             <div class="grid-livros" id="grid-livros"></div>
         </div>
 
         <div id="tela-leitor">
             <aside class="coluna-menu" id="coluna-menu">
-                <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 15px; border-bottom: 1px solid #dadce0; padding-bottom: 10px; font-size: 14px;">Capítulos da Obra</div>
+                <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 12px; border-bottom: 1px solid #dadce0; padding-bottom: 8px; font-size: 13px;">Capítulos</div>
                 <div class="lista-pilulas" id="lista-pilulas"></div>
             </aside>
 
             <main class="coluna-livro" id="container-leitor-master">
                 <button class="botao-navegacao btn-esquerda" onclick="saltarEsquerda()">❮</button>
                 <button class="botao-navegacao btn-direita" onclick="saltarDireita()">❯</button>
-                
                 <div id="area-paginas" style="width: 100%; height: 100%;"></div>
             </main>
         </div>
@@ -201,19 +215,22 @@
         const btnToggleMenu = document.getElementById('btn-toggle-menu');
         const controlesFonte = document.getElementById('controles-fonte');
 
-        // =========================================
-        // CONTROLE DE ZOOM DINÂMICO
-        // =========================================
-        let tamanhoFonteAtual = window.innerWidth <= 900 ? 16 : 18;
+        let tamanhoFonteAtual = window.innerWidth <= 900 ? 15 : 18;
+        let entrelinhaAtual = 1.6;
         
         function alterarTamanhoFonte(mudanca) {
             tamanhoFonteAtual += mudanca;
             if (tamanhoFonteAtual < 12) tamanhoFonteAtual = 12;
             if (tamanhoFonteAtual > 26) tamanhoFonteAtual = 26;
-            document.documentElement.style.setProperty('--tamanho-fonte', tamanhoFonteAtual + 'px');
             
-            // Refaz a paginação em resposta ao aumento/diminuição do texto
-            setTimeout(recalcularPaginasVisuais, 150);
+            // Ajusta a entrelinha proporcionalmente para o texto não colidir
+            if (tamanhoFonteAtual > 20) entrelinhaAtual = 1.4;
+            else entrelinhaAtual = 1.6;
+
+            document.documentElement.style.setProperty('--tamanho-fonte', tamanhoFonteAtual + 'px');
+            document.documentElement.style.setProperty('--entrelinha', entrelinhaAtual);
+            
+            setTimeout(recalcularPaginasVisuais, 100);
         }
 
         async function escanearRaizDoGithub() {
@@ -221,7 +238,7 @@
             const grid = document.getElementById('grid-livros');
             try {
                 const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/?nocache=` + new Date().getTime());
-                if (!response.ok) throw new Error("Acesso recusado pela API.");
+                if (!response.ok) throw new Error("API Offline.");
                 const arquivos = await response.json();
                 
                 const livrosJson = arquivos.filter(arq => 
@@ -229,7 +246,7 @@
                 );
 
                 if(livrosJson.length === 0) {
-                    status.innerHTML = "Nenhuma obra disponível no catálogo remoto.";
+                    status.innerHTML = "Nenhum livro encontrado no repositório.";
                     return;
                 }
                 status.style.display = 'none';
@@ -244,24 +261,20 @@
                     grid.appendChild(cartao);
                 });
             } catch (erro) {
-                status.innerText = "Erro ao sincronizar o catálogo de livros.";
+                status.innerText = "Erro ao carregar o catálogo.";
             }
         }
 
         async function carregarDadosDaNuvem(url) {
-            nomeHeader.innerText = "A descarregar obra...";
+            nomeHeader.innerText = "Sincronizando obra...";
             try {
-                const urlAntiCache = url + "?t=" + new Date().getTime();
-                const response = await fetch(urlAntiCache);
-                if (!response.ok) throw new Error(`Erro de rede`);
-                
+                const response = await fetch(url + "?t=" + new Date().getTime());
+                if (!response.ok) throw new Error(`Erro de download`);
                 const textoPuro = await response.text();
-                const textoLimpo = textoPuro.trim().replace(/^\uFEFF/, '');
-                
-                const dados = JSON.parse(textoLimpo);
+                const dados = JSON.parse(textoPuro.trim().replace(/^\uFEFF/, ''));
                 renderizarInterfaceDoLivro(dados);
             } catch (e) {
-                alert(`Erro ao ler estrutura: ${e.message}`);
+                alert(`Erro estrutural no JSON.`);
                 nomeHeader.innerText = "Acervo Digital";
             }
         }
@@ -275,40 +288,31 @@
             nomeHeader.innerText = dados.titulo || "Leitura";
             if (window.innerWidth <= 900) btnToggleMenu.style.display = 'block';
 
-            const listaPilulas = document.getElementById('lista-pilulas');
-            listaPilulas.innerHTML = dados.pilulasHTML;
+            document.getElementById('lista-pilulas').innerHTML = dados.pilulasHTML;
             const areaPaginas = document.getElementById('area-paginas');
             areaPaginas.innerHTML = dados.conteudoLivroHTML;
 
-            // ==========================================
-            // DESTRUIDOR DE TECLADO (SEGURANÇA MÁXIMA)
-            // ==========================================
-            // Remove qualquer atributo que force o teclado virtual a subir no telemóvel
+            // HIGIENIZAÇÃO DE CÓDIGO (Remove travas do PC e desliga teclado)
             areaPaginas.querySelectorAll('*').forEach(el => {
-                if (el.hasAttribute('contenteditable')) {
-                    el.setAttribute('contenteditable', 'false');
-                    el.removeAttribute('contenteditable');
-                }
+                el.removeAttribute('contenteditable');
+                // Remove estilos inline de fonte antigos que travavam o leitor
+                if(el.style.fontSize) el.style.fontSize = '';
+                if(el.style.lineHeight) el.style.lineHeight = '';
             });
             
-            listaPilulas.querySelectorAll('.botao-menu').forEach(btn => {
+            document.querySelectorAll('#lista-pilulas .botao-menu').forEach(btn => {
                 btn.removeAttribute('draggable');
                 const idAlvo = btn.getAttribute('data-secao');
                 btn.setAttribute('onclick', `abrirSecao('${idAlvo}', this)`);
             });
 
-            // Abre o marcador original
             const idMarcador = dados.marcador || areaPaginas.querySelector('.secao-livro')?.id;
             if(idMarcador) {
                 const btnAlvo = document.querySelector(`[data-secao="${idMarcador}"]`);
                 if(btnAlvo) abrirSecao(idMarcador, btnAlvo);
             }
 
-            // Ativa o recalculo no momento que a janela muda de tamanho
-            window.addEventListener('resize', () => {
-                document.documentElement.style.setProperty('--tamanho-fonte', window.innerWidth <= 900 ? '16px' : '18px');
-                setTimeout(recalcularPaginasVisuais, 200);
-            });
+            window.addEventListener('resize', () => setTimeout(recalcularPaginasVisuais, 150));
         }
 
         function abrirSecao(idDaSecao, elementoClicado) {
@@ -316,18 +320,15 @@
             const secaoAlvo = document.getElementById(idDaSecao);
             if(secaoAlvo) {
                 secaoAlvo.classList.add('ativo');
-                // Recalcula as páginas assim que o capítulo é visível na tela
                 setTimeout(recalcularPaginasVisuais, 50);
             }
-            
             document.querySelectorAll('.botao-menu').forEach(b => b.classList.remove('ativo'));
             if(elementoClicado) elementoClicado.classList.add('ativo');
-            
             if(window.innerWidth <= 900 && document.getElementById('coluna-menu').classList.contains('aberto')) toggleMenuMobile();
         }
 
         // =========================================
-        // MOTOR DE GEOMETRIA MATEMÁTICA
+        // MOTOR GEOMÉTRICO (Páginas sem Cortes)
         // =========================================
         function recalcularPaginasVisuais() {
             const secaoAtiva = document.querySelector('.secao-livro.ativo');
@@ -337,22 +338,19 @@
             const containerFundo = secaoAtiva.querySelector('.camada-fundo');
             if (!areaTexto || !containerFundo) return;
 
-            // Remove as folhas brancas de apoio provenientes do PC
             containerFundo.querySelectorAll('.pagina-branca').forEach(p => p.remove());
 
-            // A largura de 1 coluna inteira (Largura do texto da folha + Distância até a próxima folha)
             const gapTexto = parseFloat(getComputedStyle(areaTexto).columnGap) || 0;
             const passoVisual = areaTexto.clientWidth + gapTexto;
             
             if(passoVisual <= 0) return;
 
-            // Math.ceil arredonda para cima. Se faltar 1px de texto, ele cria a folha seguinte!
+            // Math.ceil garante que se sobrar 1 única linha, ela ganha uma folha inteira na direita
             let numPaginasNecessarias = Math.ceil(areaTexto.scrollWidth / passoVisual);
             if (numPaginasNecessarias < 1) numPaginasNecessarias = 1;
 
             const paginasAtuais = containerFundo.querySelectorAll('.pagina-visual');
 
-            // Cria as folhas tridimensionais (backgrounds) que faltam na adaptação de ecrã
             if (paginasAtuais.length < numPaginasNecessarias) {
                 const faltam = numPaginasNecessarias - paginasAtuais.length;
                 for (let i = 0; i < faltam; i++) {
@@ -368,13 +366,12 @@
                 }
             }
 
-            // Refaz a numeração do rodapé perfeitamente
+            // Garante margem uniforme na numeração final
             containerFundo.querySelectorAll('.numero-pagina').forEach((el, index) => {
                 el.innerText = index + 1;
             });
         }
 
-        // Navegação salta exatamante a largura do ecrã do telemóvel/PC do utilizador
         function saltarEsquerda() { 
             const s = document.querySelector('.secao-livro.ativo'); 
             if (s) {
@@ -393,7 +390,6 @@
             }
         }
 
-        // Permite rolar as páginas usando o scroll vertical do rato (Transformado em horizontal)
         document.getElementById('area-paginas').addEventListener('wheel', function(event) {
             if (event.deltaY !== 0) { 
                 const s = document.querySelector('.secao-livro.ativo'); 
