@@ -3,191 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor Oficial - Obras Digitais</title>
+    <title>Biblioteca Digital</title>
     <style>
-        /* ==============================================================
-           1. ESTILOS DO LEITOR WEB (O "Palco")
-           ============================================================== */
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        /* =========================================
+           1. ESTILOS GERAIS E CABEÇALHO MÍNIMO
+           ========================================= */
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background-color: #2c3e50; }
         
-        .cabecalho { background-color: #ffffff; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; flex-shrink: 0; }
-        .textos-cabecalho { flex: 1; text-align: center; }
-        .titulo-livro { font-family: 'Georgia', serif; font-size: 22px; font-weight: bold; color: #1e3a8a; font-style: italic; margin: 0; }
-        .subtitulo-livro { font-size: 13px; color: #5f6368; margin-top: 2px; }
+        .cabecalho-minimo { height: 45px; background-color: #ffffff; border-bottom: 1px solid #dadce0; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 100; flex-shrink: 0; }
+        .titulo-header { font-family: 'Georgia', serif; font-size: 16px; font-weight: bold; font-style: italic; color: #1e3a8a; display: flex; align-items: center; gap: 10px; }
         
-        .btn-testar-pc { background-color: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; border-radius: 6px; padding: 8px 15px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; }
-        .btn-testar-pc:hover { background-color: #1a73e8; color: #ffffff; }
+        .btn-acao-header { background-color: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-acao-header:hover { background-color: #1a73e8; color: #ffffff; }
 
-        .container-leitura-web { flex: 1; display: flex; overflow: hidden; position: relative; }
+        .conteudo-principal { display: flex; flex: 1; overflow: hidden; position: relative; width: 100%; }
+
+        /* =========================================
+           2. TELA 1: A BIBLIOTECA (SCANNER)
+           ========================================= */
+        #tela-biblioteca { width: 100%; height: 100%; overflow-y: auto; background-color: #f0f2f5; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+        .grid-livros { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; max-width: 1000px; width: 100%; margin-top: 20px; }
         
-        /* Menu Lateral (Capítulos) */
-        .menu-capitulos { width: 280px; background: #ffffff; border-right: 1px solid #dadce0; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; transition: 0.3s; }
-        .botao-menu { background: #f8f9fa; border: 1px solid #dadce0; border-radius: 8px; padding: 15px; cursor: pointer; font-weight: 500; color: #3c4043; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
-        .botao-menu:hover { border-color: #1a73e8; background: #e8f0fe; }
-        .botao-menu.ativo { background: #1a73e8; color: #ffffff; border-color: #1a73e8; box-shadow: 0 4px 10px rgba(26,115,232,0.3); }
-        .contador-palavras { display: none; } /* Oculto no leitor final */
+        .cartao-livro { background: #ffffff; border: 1px solid #dadce0; border-radius: 8px; width: 220px; height: 150px; padding: 20px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s; }
+        .cartao-livro:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(26,115,232,0.2); border-color: #1a73e8; }
+        .cartao-livro h3 { margin: 0; font-family: 'Georgia', serif; font-size: 16px; color: #1e3a8a; }
+        .cartao-livro p { margin: 5px 0 0 0; font-size: 12px; color: #7f8c8d; }
+        .cartao-livro .badge-json { margin-top: 15px; font-size: 10px; background: #e8eaed; color: #5f6368; padding: 3px 8px; border-radius: 10px; }
 
-        /* Área do Livro */
-        .area-livro { flex: 1; overflow-y: auto; padding: 40px 20px; scroll-behavior: smooth; display: flex; flex-direction: column; align-items: center; }
+        .status-scanner { color: #5f6368; font-size: 14px; text-align: center; margin-bottom: 20px; font-style: italic; }
 
-        /* ==============================================================
-           2. O "TRADUTOR CSS" (Transforma o código do Desktop para Web)
-           ============================================================== */
-        /* Ignora a regra de "display: none" original para as seções ativas */
-        .secao-livro { display: none; width: 100%; max-width: 800px; animation: fadeIn 0.5s ease; }
-        .secao-livro.ativo { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Quebra o layout rígido das páginas e transforma em um texto contínuo */
-        .camada-fundo { display: flex; flex-direction: column; gap: 30px; width: 100%; }
+        /* =========================================
+           3. TELA 2: O LEITOR (FIDELIDADE ABSOLUTA)
+           ========================================= */
+        #tela-leitor { width: 100%; height: 100%; display: none; flex-direction: row; }
         
-        .pagina-visual { 
-            width: 100% !important; height: auto !important; min-height: 50vh !important;
-            background-color: #ffffff !important; box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important; 
-            border-radius: 12px; padding: 50px 40px !important; box-sizing: border-box;
-            position: relative !important;
-        }
+        .coluna-menu { width: 260px; background-color: #f8f9fa; border-right: 2px solid #dadce0; padding: 15px; display: flex; flex-direction: column; z-index: 5; flex-shrink: 0; }
+        .lista-pilulas { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; padding-right: 5px; }
+        .botao-menu { background-color: #ffffff; border: 1px solid #dadce0; border-radius: 8px; padding: 10px 12px; font-size: 13px; font-weight: 500; color: #3c4043; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
+        .botao-menu:hover { background-color: #f1f3f4; }
+        .botao-menu.ativo { background-color: #1a73e8; color: #ffffff; border-color: #1a73e8; }
+        .texto-botao { flex: 1; pointer-events: none; }
+        .contador-palavras { display: none; } /* Oculto na versão final do leitor */
+
+        .coluna-livro { flex: 1; background-color: #2c3e50; display: flex; flex-direction: column; overflow: hidden; position: relative; align-items: center; justify-content: center; }
         
-        /* Remove a diagramação em colunas e o posicionamento absoluto do texto */
-        .camada-texto { 
-            position: static !important; width: 100% !important; height: auto !important;
-            column-count: 1 !important; column-width: auto !important; 
-            font-size: 18px !important; line-height: 1.8 !important; color: #2c3e50 !important;
-        }
+        .botao-navegacao { position: absolute; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; border-radius: 50%; background-color: rgba(255,255,255,0.9); border: 1px solid #dadce0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: #1a73e8; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; font-size: 24px; font-weight: bold; transition: 0.2s; }
+        .botao-navegacao:active { background-color: #e8f0fe; transform: translateY(-50%) scale(0.95); }
+        .btn-esquerda { left: 15px; } .btn-direita { right: 15px; }
 
-        /* Oculta páginas brancas usadas apenas para impressão no PDF */
-        .pagina-branca { display: none !important; }
-        .numero-pagina { display: none !important; }
+        /* A ARQUITETURA EXATA DE PÁGINAS DO DESKTOP */
+        .secao-livro { display: none; flex-direction: row; overflow-x: auto; overflow-y: hidden; align-items: center; padding: 20px; width: 100%; height: 100%; box-sizing: border-box; scroll-behavior: smooth; }
+        .secao-livro.ativo { display: flex; }
+        
+        .container-leitura { position: relative; width: max-content; margin: 0 auto; transform-origin: center center; transition: transform 0.3s ease; }
+        .camada-fundo { display: flex; gap: 40px; }
+        .pagina-visual { width: 14cm; height: 21cm; background-color: #fffaf0; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; flex-shrink: 0; }
+        .pagina-branca { display: flex; align-items: center; justify-content: center; color: #bdc3c7; font-size: 11pt; font-style: italic; }
+        .camada-texto { position: absolute; top: 2cm; left: 2cm; height: 17cm; width: calc(100% - 4cm); column-width: 10cm; column-gap: calc(4cm + 40px); column-fill: auto; font-family: Georgia, serif; font-size: 12pt; line-height: 1.5; text-align: justify; outline: none; color: #000000; }
+        .camada-texto * { color: #000000; } 
+        .numero-pagina { position: absolute; bottom: 1cm; left: 0; right: 0; text-align: center; font-size: 10pt; color: #7f8c8d; }
 
-        /* ==============================================================
-           3. RESPONSIVIDADE (Celulares e Tablets)
-           ============================================================== */
-        .btn-hamburger { display: none; background: none; border: none; font-size: 24px; color: #1e3a8a; cursor: pointer; }
-        .overlay { display: none; position: fixed; top: 70px; left: 0; width: 100vw; height: calc(100vh - 70px); background: rgba(0,0,0,0.5); z-index: 40; }
-
-        @media (max-width: 850px) {
-            .btn-hamburger { display: block; }
-            .menu-capitulos { position: fixed; top: 70px; left: -300px; height: calc(100vh - 70px); z-index: 50; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
-            .menu-capitulos.aberto { left: 0; }
-            .overlay.ativo { display: block; }
-            .pagina-visual { padding: 30px 20px !important; border-radius: 0; box-shadow: none !important; border-bottom: 1px solid #e0e0e0; }
-            .area-livro { padding: 0; background: #ffffff; }
+        /* Menu Mobile - Sobreposição do Menu de Capítulos em Telas Pequenas */
+        .btn-mobile-menu { display: none; background: none; border: none; font-size: 20px; color: #1e3a8a; cursor: pointer; padding: 0 10px; }
+        
+        @media (max-width: 900px) {
+            .btn-mobile-menu { display: block; }
+            .coluna-menu { position: absolute; left: -100%; height: 100%; box-shadow: 5px 0 15px rgba(0,0,0,0.3); transition: left 0.3s ease; }
+            .coluna-menu.aberto { left: 0; }
+            /* Em telas menores, deixamos o scroll horizontal agir naturalmente para preservar as medidas exatas da página */
+            .secao-livro { justify-content: flex-start; }
+            .container-leitura { margin: 0; }
         }
     </style>
 </head>
 <body>
 
-    <header class="cabecalho">
-        <button class="btn-hamburger" onclick="alternarMenu()">☰</button>
-        <div class="textos-cabecalho">
-            <h1 id="titulo-livro" class="titulo-livro">Carregando Obra...</h1>
-            <div id="subtitulo-livro" class="subtitulo-livro">Por favor, aguarde.</div>
+    <header class="cabecalho-minimo">
+        <div class="titulo-header">
+            <button class="btn-mobile-menu" id="btn-toggle-menu" onclick="toggleMenuMobile()" style="display:none;">☰</button>
+            <span id="nome-header">Minha Biblioteca</span>
         </div>
-        
-        <button class="btn-testar-pc" onclick="document.getElementById('input-arquivo-local').click()">📂 Testar do PC</button>
-        <input type="file" id="input-arquivo-local" style="display:none" accept=".json" onchange="carregarArquivoLocal(event)">
+        <div>
+            <button class="btn-acao-header" onclick="voltarParaBiblioteca()" id="btn-voltar-biblio" style="display:none;">Voltar à Biblioteca</button>
+            <button class="btn-acao-header" onclick="document.getElementById('input-local').click()">Carregar do PC</button>
+            <input type="file" id="input-local" accept=".json" style="display:none" onchange="abrirArquivoLocal(event)">
+        </div>
     </header>
 
-    <div class="overlay" id="overlay" onclick="alternarMenu()"></div>
+    <div class="conteudo-principal">
+        
+        <div id="tela-biblioteca">
+            <h2 style="color: #1e3a8a; font-family: Georgia;">Obras Disponíveis</h2>
+            <div class="status-scanner" id="status-scanner">Escaneando arquivos na nuvem...</div>
+            <div class="grid-livros" id="grid-livros">
+                </div>
+        </div>
 
-    <main class="container-leitura-web">
-        <aside class="menu-capitulos" id="menu-capitulos">
-            <div id="lista-pilulas"></div>
-        </aside>
+        <div id="tela-leitor">
+            <aside class="coluna-menu" id="coluna-menu">
+                <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 15px; border-bottom: 1px solid #dadce0; padding-bottom: 10px;">Sumário</div>
+                <div class="lista-pilulas" id="lista-pilulas">
+                    </div>
+            </aside>
 
-        <section class="area-livro" id="area-livro">
-            <div id="container-leitor"></div>
-        </section>
-    </main>
+            <main class="coluna-livro" id="container-leitor-master">
+                <button class="botao-navegacao btn-esquerda" onclick="saltarEsquerda()">❮</button>
+                <button class="botao-navegacao btn-direita" onclick="saltarDireita()">❯</button>
+                
+                <div id="area-paginas" style="width: 100%; height: 100%;">
+                    </div>
+            </main>
+        </div>
+
+    </div>
 
     <script>
-        function alternarMenu() {
-            document.getElementById('menu-capitulos').classList.toggle('aberto');
-            document.getElementById('overlay').classList.toggle('ativo');
+        // CONFIGURAÇÃO DO REPOSITÓRIO GITHUB PARA O SCANNER
+        const GITHUB_USER = 'gvconecta2025';
+        const GITHUB_REPO = 'MyBooksReader';
+
+        // Elementos da UI
+        const telaBiblioteca = document.getElementById('tela-biblioteca');
+        const telaLeitor = document.getElementById('tela-leitor');
+        const nomeHeader = document.getElementById('nome-header');
+        const btnVoltarBiblio = document.getElementById('btn-voltar-biblio');
+        const btnToggleMenu = document.getElementById('btn-toggle-menu');
+
+        // ==========================================
+        // 1. SISTEMA DE SCANNER DA BIBLIOTECA
+        // ==========================================
+        async function escanearPastaRaiz() {
+            const status = document.getElementById('status-scanner');
+            const grid = document.getElementById('grid-livros');
+            
+            try {
+                // Acessa a API do GitHub para ler a pasta raiz do seu repositório
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`);
+                if (!response.ok) throw new Error("Não foi possível acessar o repositório.");
+                
+                const arquivos = await response.json();
+                
+                // Filtra apenas os arquivos .json
+                const livrosJson = arquivos.filter(arq => arquivoEhLivro(arq.name));
+
+                if(livrosJson.length === 0) {
+                    status.innerText = "Nenhum livro .json encontrado na pasta raiz.";
+                    return;
+                }
+
+                status.innerText = `${livrosJson.length} obra(s) encontrada(s).`;
+                grid.innerHTML = ''; // Limpa o grid
+
+                livrosJson.forEach(livro => {
+                    const cartao = document.createElement('div');
+                    cartao.className = 'cartao-livro';
+                    // Tira o .json e os underlines para ficar bonito no cartão
+                    const nomeExibicao = livro.name.replace('.json', '').replace(/_/g, ' ');
+                    
+                    cartao.innerHTML = `
+                        <h3>${nomeExibicao}</h3>
+                        <span class="badge-json">Nuvem</span>
+                    `;
+                    
+                    // Ao clicar, faz o download do arquivo cru (download_url) e monta o leitor
+                    cartao.onclick = () => baixarEAbrirLivroDaNuvem(livro.download_url);
+                    grid.appendChild(cartao);
+                });
+
+            } catch (erro) {
+                status.innerText = "Modo Local. Escaneamento em nuvem indisponível ou limite de taxa atingido. Use o botão 'Carregar do PC' para ler.";
+                console.error(erro);
+            }
         }
 
-        function abrirSecao(idDaSecao, elementoClicado) {
-            // Esconde todas e mostra a selecionada
-            document.querySelectorAll('.secao-livro').forEach(secao => secao.classList.remove('ativo'));
-            const secaoAlvo = document.getElementById(idDaSecao);
-            if(secaoAlvo) secaoAlvo.classList.add('ativo');
-            
-            // Gerencia botões
-            document.querySelectorAll('.botao-menu').forEach(botao => botao.classList.remove('ativo'));
-            if(elementoClicado) elementoClicado.classList.add('ativo');
-
-            // Volta a rolagem da página pro topo
-            document.getElementById('area-livro').scrollTop = 0;
-
-            // Fecha o menu se estiver no celular
-            if(window.innerWidth <= 850) alternarMenu();
+        function arquivoEhLivro(nome) {
+            return nome.endsWith('.json') && nome !== 'package.json' && nome !== 'package-lock.json';
         }
 
-        // FUNÇÃO CENTRAL QUE MONTA O LIVRO NA TELA
-        function processarDadosDoLivro(dados) {
-            document.getElementById('titulo-livro').innerText = dados.titulo;
-            document.getElementById('subtitulo-livro').innerText = dados.subtitulo || "";
-            
-            // Injeta os Capítulos (Menu)
-            document.getElementById('lista-pilulas').innerHTML = dados.pilulasHTML;
-            
-            // Injeta o Conteúdo (Páginas)
-            const containerLeitor = document.getElementById('container-leitor');
-            containerLeitor.innerHTML = dados.conteudoLivroHTML;
+        // ==========================================
+        // 2. FUNÇÕES DE CARREGAMENTO DE DADOS
+        // ==========================================
+        async function baixarEAbrirLivroDaNuvem(url) {
+            nomeHeader.innerText = "Baixando obra...";
+            try {
+                const response = await fetch(url);
+                const dados = await response.json();
+                montarLeitorDeFidelidade(dados);
+            } catch (e) {
+                alert("Erro ao baixar o livro da nuvem.");
+                nomeHeader.innerText = "Minha Biblioteca";
+            }
+        }
 
-            // A MÁGICA DA SEGURANÇA: Remove todos os atributos de edição do HTML importado
-            containerLeitor.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        function abrirArquivoLocal(evento) {
+            const arquivo = evento.target.files[0];
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = function(e) {
+                try {
+                    const dados = JSON.parse(e.target.result);
+                    montarLeitorDeFidelidade(dados);
+                } catch (erro) { alert("Arquivo inválido."); }
+                evento.target.value = '';
+            };
+            leitor.readAsText(arquivo);
+        }
+
+        // ==========================================
+        // 3. O LEITOR DE FIDELIDADE (MONTAGEM EXACTA)
+        // ==========================================
+        function montarLeitorDeFidelidade(dados) {
+            // Troca as telas
+            telaBiblioteca.style.display = 'none';
+            telaLeitor.style.display = 'flex';
+            btnVoltarBiblio.style.display = 'block';
             
-            // Reconecta os botões do menu para funcionar no novo layout web
-            document.querySelectorAll('#lista-pilulas .botao-menu').forEach(btn => {
-                const idAlvo = btn.getAttribute('data-secao');
-                // Remove propriedades de drag and drop do desktop
+            // Ajusta Cabeçalho
+            nomeHeader.innerText = dados.titulo || "Livro sem título";
+            if (window.innerWidth <= 900) btnToggleMenu.style.display = 'block';
+
+            // Injeta o Menu (Pílulas)
+            const listaPilulas = document.getElementById('lista-pilulas');
+            listaPilulas.innerHTML = dados.pilulasHTML;
+            
+            // Injeta o Conteúdo Diagramado
+            const areaPaginas = document.getElementById('area-paginas');
+            areaPaginas.innerHTML = dados.conteudoLivroHTML;
+
+            // BLINDAGEM DE SEGURANÇA (Remove edição e drag and drop)
+            areaPaginas.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            listaPilulas.querySelectorAll('.botao-menu').forEach(btn => {
                 btn.removeAttribute('draggable');
+                const idAlvo = btn.getAttribute('data-secao');
                 btn.setAttribute('onclick', `abrirSecao('${idAlvo}', this)`);
             });
 
-            // Abre o capítulo onde estava o marcador, ou o primeiro capítulo
-            const idMarcador = dados.marcador || containerLeitor.querySelector('.secao-livro')?.id;
+            // Gerencia a Escala Responsiva
+            ajustarEscalaDaPagina();
+            window.addEventListener('resize', ajustarEscalaDaPagina);
+
+            // Abre a pílula marcada ou a primeira
+            const idMarcador = dados.marcador || areaPaginas.querySelector('.secao-livro')?.id;
             if(idMarcador) {
                 const btnAlvo = document.querySelector(`[data-secao="${idMarcador}"]`);
                 if(btnAlvo) abrirSecao(idMarcador, btnAlvo);
             }
         }
 
-        // CARREGA DA NUVEM (GitHub/Vercel)
-        async function carregarLivroOficial() {
-            try {
-                // Ele procura dentro da pasta "livros"
-                const response = await fetch('livros/livro_padrao.json');
-                if (!response.ok) throw new Error("Arquivo não encontrado.");
-                const dados = await response.json();
-                processarDadosDoLivro(dados);
-            } catch(e) {
-                document.getElementById('titulo-livro').innerText = "Bem-vindo ao Leitor Oficial";
-                document.getElementById('subtitulo-livro').innerText = "Nenhuma obra oficial publicada ainda. Use o botão 'Testar do PC' para ler arquivos locais.";
+        // ==========================================
+        // 4. CONTROLES DO LEITOR E RESPONSIVIDADE
+        // ==========================================
+        function abrirSecao(idDaSecao, elementoClicado) {
+            document.querySelectorAll('.secao-livro').forEach(s => s.classList.remove('ativo'));
+            const secaoAlvo = document.getElementById(idDaSecao);
+            if(secaoAlvo) {
+                secaoAlvo.classList.add('ativo');
+                secaoAlvo.scrollLeft = 0; // Reseta o scroll da seção
+            }
+            
+            document.querySelectorAll('.botao-menu').forEach(b => b.classList.remove('ativo'));
+            if(elementoClicado) elementoClicado.classList.add('ativo');
+
+            // Fecha menu no mobile após clicar
+            if(window.innerWidth <= 900) {
+                document.getElementById('coluna-menu').classList.remove('aberto');
             }
         }
 
-        // CARREGA LOCALMENTE (O Botão de Teste)
-        function carregarArquivoLocal(evento) {
-            const arquivo = evento.target.files[0]; 
-            if (!arquivo) return;
-            
-            const leitor = new FileReader();
-            leitor.onload = function(e) {
-                try {
-                    const dados = JSON.parse(e.target.result);
-                    processarDadosDoLivro(dados);
-                } catch (erro) {
-                    alert("Erro ao ler o arquivo. Certifique-se de que é um projeto válido.");
-                }
-                evento.target.value = ''; // Reseta o input
-            };
-            leitor.readAsText(arquivo);
+        function saltarEsquerda() { 
+            const s = document.querySelector('.secao-livro.ativo'); 
+            if (s) s.scrollBy({ left: -(s.querySelector('.pagina-visual').offsetWidth + 40), behavior: 'smooth' }); 
+        }
+        function saltarDireita() { 
+            const s = document.querySelector('.secao-livro.ativo'); 
+            if (s) s.scrollBy({ left: (s.querySelector('.pagina-visual').offsetWidth + 40), behavior: 'smooth' }); 
         }
 
-        // Inicia o leitor assim que a página abre
-        window.onload = carregarLivroOficial;
+        // Suporte ao scroll do mouse para avançar as páginas fixas
+        document.getElementById('area-paginas').addEventListener('wheel', function(event) {
+            if (event.deltaY !== 0) { 
+                const s = document.querySelector('.secao-livro.ativo'); 
+                if (s) { s.scrollLeft += event.deltaY; event.preventDefault(); } 
+            }
+        }, { passive: false });
+
+        // Magia para fazer os 14x21cm caberem em qualquer tela mantendo a proporção
+        function ajustarEscalaDaPagina() {
+            const containerLeituraAtivo = document.querySelector('.secao-livro.ativo .container-leitura');
+            if(!containerLeituraAtivo) return;
+            
+            // Largura disponível descontando o padding
+            const larguraDisponivel = document.getElementById('area-paginas').clientWidth - 40; 
+            const larguraPagina = 530; // 14cm em pixels aprox.
+            
+            if(larguraDisponivel < larguraPagina) {
+                // Se a tela for menor que a página, aplicamos um zoom-out proporcional
+                const escala = larguraDisponivel / larguraPagina;
+                document.querySelectorAll('.container-leitura').forEach(c => {
+                    c.style.transform = `scale(${escala})`;
+                });
+            } else {
+                document.querySelectorAll('.container-leitura').forEach(c => {
+                    c.style.transform = `scale(1)`;
+                });
+            }
+        }
+
+        function toggleMenuMobile() {
+            document.getElementById('coluna-menu').classList.toggle('aberto');
+        }
+
+        function voltarParaBiblioteca() {
+            telaLeitor.style.display = 'none';
+            telaBiblioteca.style.display = 'flex';
+            btnVoltarBiblio.style.display = 'none';
+            btnToggleMenu.style.display = 'none';
+            nomeHeader.innerText = "Minha Biblioteca";
+            document.getElementById('coluna-menu').classList.remove('aberto');
+            escanearPastaRaiz(); // Atualiza a lista caso algo tenha mudado
+        }
+
+        // Inicia o scanner ao abrir a página
+        window.onload = escanearPastaRaiz;
+
     </script>
 </body>
 </html>
