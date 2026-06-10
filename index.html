@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,7 +43,7 @@
         .status-scanner { color: #5f6368; font-size: 13px; text-align: center; margin-bottom: 20px; font-style: italic; }
 
         /* =========================================
-           3. TELA 2: LEITOR PROPORÇÃO EM FLUXO 16:9
+           3. TELA 2: LEITOR PROPORÇÃO EM FLUXO MULTI-TELA
            ========================================= */
         #tela-leitor { width: 100%; height: 100%; display: none; flex-direction: row; }
         
@@ -60,13 +60,13 @@
         .secao-livro { display: none; width: 100% !important; height: 100% !important; overflow-y: auto !important; padding: 20px !important; box-sizing: border-box; }
         .secao-livro.ativo { display: block !important; }
         
-        /* Container responsivo centralizado */
+        /* Espaço de leitura responsivo */
         .container-leitura { width: 100% !important; max-width: 650px !important; margin: 0 auto !important; transform: none !important; }
         
-        /* Remove elementos analógicos de impressão de páginas do PC */
+        /* Desliga elementos tridimensionais do PC */
         .camada-fundo, .numero-pagina { display: none !important; }
         
-        /* Caixa de leitura contínua adaptada para telas */
+        /* Caixa de leitura adaptada para ecrãs e telemóveis */
         .camada-texto { 
             position: relative !important; top: 0 !important; left: 0 !important; 
             width: 100% !important; height: auto !important; 
@@ -83,13 +83,13 @@
             transition: font-size 0.2s ease;
         }
 
-        /* Botões de Rodapé para Passar Capítulos */
+        /* Botões inferiores para avançar capítulos */
         .botao-navegacao { position: fixed; bottom: 20px; width: 50px; height: 50px; border-radius: 50%; background-color: #ffffff; border: 1px solid #1a73e8; box-shadow: 0 4px 15px rgba(0,0,0,0.15); color: #1a73e8; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; font-size: 20px; font-weight: bold; transition: 0.2s; }
         .botao-navegacao:hover { background-color: #1a73e8; color: #ffffff; }
         .btn-esquerda { left: max(20px, calc(50vw - 340px)); } 
         .btn-direita { right: max(20px, calc(50vw - 340px)); }
 
-        /* Menu Hambúrguer Mobile */
+        /* Responsividade Mobile */
         .btn-mobile-menu { display: none; background: none; border: none; font-size: 22px; color: #1e3a8a; cursor: pointer; padding: 0; margin-right: 15px; }
         .overlay { display: none; position: fixed; top: 40px; left: 0; width: 100vw; height: calc(100vh - 40px); background: rgba(0,0,0,0.5); z-index: 40; }
         
@@ -108,7 +108,7 @@
 
     <header class="cabecalho-minimo">
         <div class="grupo-esquerda">
-            <button class="btn-mobile-menu" id="btn-toggle-menu" onclick="toggleMenuMobile()" style="display:none;">☰</button>
+            <button class="btn-mobile-menu" id="btn-toggle-menu" onclick="toggleMenuMobile()">☰</button>
             <span class="titulo-header" id="nome-header">Acervo Digital</span>
         </div>
         
@@ -166,8 +166,9 @@
             const status = document.getElementById('status-scanner');
             const grid = document.getElementById('grid-livros');
             try {
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`);
-                if (!response.ok) throw new Error("Acesso recusado pela API do GitHub.");
+                // Força a atualização da lista de ficheiros na API do GitHub
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/?nocache=` + new Date().getTime());
+                if (!response.ok) throw new Error("Acesso recusado pela API.");
                 const arquivos = await response.json();
                 
                 const livrosJson = arquivos.filter(arq => 
@@ -175,7 +176,7 @@
                 );
 
                 if(livrosJson.length === 0) {
-                    status.innerHTML = "Nenhum arquivo de livro (.json) encontrado na raiz do GitHub.";
+                    status.innerHTML = "Nenhuma obra disponível no catálogo remoto.";
                     return;
                 }
                 status.style.display = 'none';
@@ -194,27 +195,27 @@
             }
         }
 
-        // === SISTEMA DE LEITURA BLINDADO COM DIAGNÓSTICO ===
+        // === LEITURA ANTICACHE BLINDADA ===
         async function carregarDadosDaNuvem(url) {
             nomeHeader.innerText = "A processar páginas...";
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`Erro ao descarregar arquivo (Status HTTP: ${response.status})`);
+                // ADICIONA O CACHE-BUSTER DEDICADO PARA FORÇAR O GITHUB DOWNLOAD A SE ATUALIZAR
+                const urlAntiCache = url + "?t=" + new Date().getTime();
+                
+                const response = await fetch(urlAntiCache);
+                if (!response.ok) throw new Error(`Erro de rede (Status: ${response.status})`);
                 
                 const textoPuro = await response.text();
-                
-                // Remove espaços em branco e o caractere invisível BOM (\ufeff)
                 const textoLimpo = textoPuro.trim().replace(/^\uFEFF/, '');
                 
                 try {
                     const dados = JSON.parse(textoLimpo);
                     renderizarInterfaceDoLivro(dados);
                 } catch (erroJson) {
-                    throw new Error(`Arquivo corrompido ou incompleto na nuvem. Detalhe técnico: ${erroJson.message}`);
+                    throw new Error(`O CDN do GitHub ainda está a processar o ficheiro antigo. Aguarde 1 minuto e tente novamente.\nMotivo: ${erroJson.message}`);
                 }
             } catch (e) {
-                // Alerta explícito na tela revelando exatamente a falha estrutural
-                alert(`AVISO DE INFRAESTRUTURA:\n\n${e.message}`);
+                alert(`AVISO DO SISTEMA:\n\n${e.message}`);
                 nomeHeader.innerText = "Acervo Digital";
             }
         }
@@ -255,7 +256,7 @@
             document.querySelectorAll('.botao-menu').forEach(b => b.classList.remove('ativo'));
             if(elementoClicado) elementoClicado.classList.add('ativo');
             
-            if(window.innerWidth <= 900) toggleMenuMobile();
+            if(window.innerWidth <= 900 && document.getElementById('coluna-menu').classList.contains('aberto')) toggleMenuMobile();
         }
 
         function navegarCapitulo(direcao) {
