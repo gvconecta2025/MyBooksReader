@@ -6,16 +6,25 @@
     <title>Biblioteca Digital</title>
     <style>
         /* =========================================
-           1. ESTILOS GERAIS E CABEÇALHO
+           1. VARIÁVEIS E CONFIGURAÇÃO BASE
            ========================================= */
+        :root {
+            --tamanho-fonte: 16px; 
+        }
+
         body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background-color: #2c3e50; }
         
-        .cabecalho-minimo { height: 45px; background-color: #ffffff; border-bottom: 1px solid #dadce0; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 100; flex-shrink: 0; }
+        .cabecalho-minimo { height: 45px; background-color: #ffffff; border-bottom: 1px solid #dadce0; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 100; flex-shrink: 0; }
+        
         .grupo-esquerda { display: flex; align-items: center; gap: 10px; }
         .titulo-header { font-family: 'Georgia', serif; font-size: 15px; font-weight: bold; font-style: italic; color: #1e3a8a; }
         
-        .btn-acao-header { background-color: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; border-radius: 4px; padding: 4px 12px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-acao-header { background-color: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-acao-header:hover { background-color: #1a73e8; color: #ffffff; }
+
+        .controles-fonte { display: flex; gap: 6px; display: none; }
+        .btn-fonte { background-color: #ffffff; color: #3c4043; border: 1px solid #dadce0; border-radius: 4px; padding: 4px 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-fonte:hover { background-color: #f1f3f4; border-color: #1a73e8; color: #1a73e8; }
 
         .conteudo-principal { display: flex; flex: 1; overflow: hidden; position: relative; width: 100%; }
 
@@ -33,42 +42,66 @@
         .status-scanner { color: #5f6368; font-size: 14px; text-align: center; margin-bottom: 20px; font-style: italic; }
 
         /* =========================================
-           3. TELA 2: O LEITOR (EXATO DESKTOP APP)
+           3. TELA 2: O LEITOR 9:16 DINÂMICO
            ========================================= */
         #tela-leitor { width: 100%; height: 100%; display: none; flex-direction: row; }
         
         .coluna-menu { width: 260px; background-color: #f8f9fa; border-right: 2px solid #dadce0; padding: 15px; display: flex; flex-direction: column; z-index: 50; flex-shrink: 0; }
         .lista-pilulas { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; padding-right: 5px; }
         .botao-menu { background-color: #ffffff; border: 1px solid #dadce0; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 500; color: #3c4043; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
-        .botao-menu:hover { background-color: #f1f3f4; border-color: #1a73e8; }
-        .botao-menu.ativo { background-color: #1a73e8; color: #ffffff; border-color: #1a73e8; box-shadow: 0 4px 10px rgba(26,115,232,0.3); }
+        .botao-menu:hover { background-color: #e8f0fe; border-color: #1a73e8; }
+        .botao-menu.ativo { background-color: #1a73e8; color: #ffffff; border-color: #1a73e8; box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3); }
         .texto-botao { pointer-events: none; }
         .contador-palavras { display: none; } 
 
-        .coluna-livro { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background-color: #2c3e50; }
+        .coluna-livro { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background-color: #2c3e50; align-items: center; justify-content: center; }
         
-        .botao-navegacao { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; background-color: #ffffff; border: 1px solid #dadce0; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: #1a73e8; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; font-size: 24px; font-weight: bold; transition: 0.2s; }
+        .botao-navegacao { position: absolute; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; border: 1px solid #dadce0; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: #1a73e8; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; font-size: 24px; font-weight: bold; transition: 0.2s; }
         .botao-navegacao:active { background-color: #e8f0fe; transform: translateY(-50%) scale(0.95); }
-        .btn-esquerda { left: 20px; } .btn-direita { right: 20px; }
+        .btn-esquerda { left: 10px; } .btn-direita { right: 10px; }
 
-        /* A ARQUITETURA ORIGINAL DO SEU APLICATIVO */
-        .secao-livro { display: none; flex-direction: row; overflow-x: auto; overflow-y: hidden; align-items: center; padding: 0 40px; height: 100%; box-sizing: border-box; scroll-behavior: smooth; }
+        /* Estrutura da Página Horizontal */
+        .secao-livro { display: none; flex-direction: row; overflow-x: auto; overflow-y: hidden; align-items: center; justify-content: flex-start; padding: 0 20px; box-sizing: border-box; scroll-behavior: smooth; width: 100%; height: 100%; }
         .secao-livro.ativo { display: flex; }
         
-        .container-leitura { position: relative; width: max-content; transform-origin: left center; transition: transform 0.3s ease; display: flex; align-items: center; }
-        .camada-fundo { display: flex; gap: 40px; }
-        
-        /* A página tridimensional clássica */
-        .pagina-visual { width: 14cm; height: 21cm; background-color: #fffaf0; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; flex-shrink: 0; }
-        .pagina-branca { display: flex; align-items: center; justify-content: center; color: #bdc3c7; font-size: 11pt; font-style: italic; }
-        
-        /* A diagramação exata em colunas */
-        .camada-texto { position: absolute; top: 2cm; left: 2cm; height: 17cm; width: calc(100% - 4cm); column-width: 10cm; column-gap: calc(4cm + 40px); column-fill: auto; font-family: Georgia, serif; font-size: 12pt; line-height: 1.5; text-align: justify; color: #000000; }
-        .camada-texto * { color: #000000; } 
-        
-        .numero-pagina { position: absolute; bottom: 1cm; left: 0; right: 0; text-align: center; font-size: 10pt; color: #7f8c8d; }
+        /* NOVO FORMATO 9:16 (Casamento com Ecrãs Mobile) */
+        .container-leitura { 
+            position: relative; 
+            height: 85vh; 
+            max-height: 850px; 
+            aspect-ratio: 9 / 16; /* Proporção exata de telemóvel */
+            margin: auto 0; 
+            flex-shrink: 0; 
+        }
 
-        /* Responsividade para Telas Pequenas */
+        .camada-fundo { display: flex; gap: 40px; height: 100%; }
+        
+        .pagina-visual { 
+            width: 100%; height: 100%; 
+            background-color: #fffaf0; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            border-radius: 8px;
+            position: relative; flex-shrink: 0; 
+        }
+        
+        /* A magia matemática: o gap calcula a distância exata para a próxima folha tridimensional */
+        .camada-texto { 
+            position: absolute; 
+            top: 6%; left: 8%; 
+            width: 84%; height: 86%; 
+            column-width: 100%; 
+            column-gap: calc(19.0476% + 40px); 
+            font-family: Georgia, serif; 
+            font-size: var(--tamanho-fonte) !important; 
+            line-height: 1.6 !important; 
+            text-align: justify; 
+            color: #2c3e50 !important;
+            transition: font-size 0.2s ease;
+        }
+        
+        .numero-pagina { position: absolute; bottom: 2%; left: 0; right: 0; text-align: center; font-size: 11px; color: #7f8c8d; font-weight: bold; }
+
+        /* Menu Mobile Ocultável */
         .btn-mobile-menu { display: none; background: none; border: none; font-size: 22px; color: #1e3a8a; cursor: pointer; padding: 0; margin-right: 15px; }
         .overlay { display: none; position: fixed; top: 45px; left: 0; width: 100vw; height: calc(100vh - 45px); background: rgba(0,0,0,0.5); z-index: 40; }
         
@@ -77,11 +110,12 @@
             .coluna-menu { position: absolute; left: -100%; height: 100%; box-shadow: 5px 0 20px rgba(0,0,0,0.3); transition: left 0.3s ease; }
             .coluna-menu.aberto { left: 0; }
             .overlay.ativo { display: block; }
-            .secao-livro { padding: 0 10px; } /* Menos margem no celular */
+            
+            /* Ajuste mobile para utilizar o máximo de ecrã possível */
+            .secao-livro { padding: 0 10px; }
+            .container-leitura { height: 90vh; }
             .btn-esquerda { left: 5px; } .btn-direita { right: 5px; }
-            .botao-navegacao { width: 40px; height: 40px; font-size: 20px; }
-            .container-leitura { transform-origin: left top; } /* Ancoragem no topo para mobile */
-            .secao-livro { align-items: flex-start; padding-top: 20px; }
+            .botao-navegacao { width: 35px; height: 35px; font-size: 18px; top: unset; bottom: 30px; transform: none; background-color: rgba(255,255,255,0.95); }
         }
     </style>
 </head>
@@ -89,11 +123,16 @@
 
     <header class="cabecalho-minimo">
         <div class="grupo-esquerda">
-            <button class="btn-mobile-menu" id="btn-toggle-menu" onclick="toggleMenuMobile()" style="display:none;">☰</button>
+            <button class="btn-mobile-menu" id="btn-toggle-menu" onclick="toggleMenuMobile()">☰</button>
             <span class="titulo-header" id="nome-header">Acervo Digital</span>
         </div>
-        <div>
-            <button class="btn-acao-header" onclick="voltarParaBiblioteca()" id="btn-voltar-biblio" style="display:none;">← Voltar ao Catálogo</button>
+        
+        <div class="grupo-esquerda">
+            <div class="controles-fonte" id="controles-fonte">
+                <button class="btn-fonte" onclick="alterarTamanhoFonte(-2)">A-</button>
+                <button class="btn-fonte" onclick="alterarTamanhoFonte(2)">A+</button>
+            </div>
+            <button class="btn-acao-header" onclick="voltarParaBiblioteca()" id="btn-voltar-biblio" style="display:none;">← Catálogo</button>
         </div>
     </header>
 
@@ -130,8 +169,21 @@
         const nomeHeader = document.getElementById('nome-header');
         const btnVoltarBiblio = document.getElementById('btn-voltar-biblio');
         const btnToggleMenu = document.getElementById('btn-toggle-menu');
+        const controlesFonte = document.getElementById('controles-fonte');
 
-        let escalaAtualDaPagina = 1; // Variável global para saber o zoom da página
+        // =========================================
+        // ZOOM DINÂMICO
+        // =========================================
+        let tamanhoFonteAtual = 16;
+        function alterarTamanhoFonte(mudanca) {
+            tamanhoFonteAtual += mudanca;
+            if (tamanhoFonteAtual < 12) tamanhoFonteAtual = 12;
+            if (tamanhoFonteAtual > 28) tamanhoFonteAtual = 28;
+            document.documentElement.style.setProperty('--tamanho-fonte', tamanhoFonteAtual + 'px');
+            
+            // Dá tempo para o CSS renderizar o novo tamanho de texto e recalcula as páginas
+            setTimeout(recalcularPaginasVisuais, 300);
+        }
 
         async function escanearRaizDoGithub() {
             const status = document.getElementById('status-scanner');
@@ -175,14 +227,10 @@
                 const textoPuro = await response.text();
                 const textoLimpo = textoPuro.trim().replace(/^\uFEFF/, '');
                 
-                try {
-                    const dados = JSON.parse(textoLimpo);
-                    renderizarInterfaceDoLivro(dados);
-                } catch (erroJson) {
-                    throw new Error(`Falha estrutural ou ficheiro corrompido.`);
-                }
+                const dados = JSON.parse(textoLimpo);
+                renderizarInterfaceDoLivro(dados);
             } catch (e) {
-                alert(`Erro:\n\n${e.message}`);
+                alert(`Erro ao ler estrutura: ${e.message}`);
                 nomeHeader.innerText = "Acervo Digital";
             }
         }
@@ -191,6 +239,7 @@
             telaBiblioteca.style.display = 'none';
             telaLeitor.style.display = 'flex';
             btnVoltarBiblio.style.display = 'block';
+            controlesFonte.style.display = 'flex';
             
             nomeHeader.innerText = dados.titulo || "Leitura";
             if (window.innerWidth <= 900) btnToggleMenu.style.display = 'block';
@@ -200,7 +249,7 @@
             const areaPaginas = document.getElementById('area-paginas');
             areaPaginas.innerHTML = dados.conteudoLivroHTML;
 
-            // Bloqueio Total
+            // Bloqueio de Edição
             areaPaginas.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
             listaPilulas.querySelectorAll('.botao-menu').forEach(btn => {
                 btn.removeAttribute('draggable');
@@ -208,21 +257,25 @@
                 btn.setAttribute('onclick', `abrirSecao('${idAlvo}', this)`);
             });
 
-            // Chama a função da magia matemática
-            ajustarEscalaDasPaginas();
-            window.addEventListener('resize', ajustarEscalaDasPaginas);
-
+            // Abre o marcador
             const idMarcador = dados.marcador || areaPaginas.querySelector('.secao-livro')?.id;
             if(idMarcador) {
                 const btnAlvo = document.querySelector(`[data-secao="${idMarcador}"]`);
                 if(btnAlvo) abrirSecao(idMarcador, btnAlvo);
             }
+
+            // Ativa o recalculo no momento que a janela muda de tamanho (telemóvel deitado, etc.)
+            window.addEventListener('resize', () => setTimeout(recalcularPaginasVisuais, 150));
         }
 
         function abrirSecao(idDaSecao, elementoClicado) {
             document.querySelectorAll('.secao-livro').forEach(s => { s.classList.remove('ativo'); s.scrollLeft = 0; });
             const secaoAlvo = document.getElementById(idDaSecao);
-            if(secaoAlvo) secaoAlvo.classList.add('ativo');
+            if(secaoAlvo) {
+                secaoAlvo.classList.add('ativo');
+                // Recalcula as páginas assim que o capítulo é aberto
+                setTimeout(recalcularPaginasVisuais, 50);
+            }
             
             document.querySelectorAll('.botao-menu').forEach(b => b.classList.remove('ativo'));
             if(elementoClicado) elementoClicado.classList.add('ativo');
@@ -230,16 +283,57 @@
             if(window.innerWidth <= 900 && document.getElementById('coluna-menu').classList.contains('aberto')) toggleMenuMobile();
         }
 
-        // Navegação adaptada à escala
+        // =========================================
+        // PAGINAÇÃO MATEMÁTICA E DINÂMICA
+        // =========================================
+        function recalcularPaginasVisuais() {
+            const secaoAtiva = document.querySelector('.secao-livro.ativo');
+            if (!secaoAtiva) return;
+
+            const areaTexto = secaoAtiva.querySelector('.camada-texto');
+            const containerFundo = secaoAtiva.querySelector('.camada-fundo');
+            if (!areaTexto || !containerFundo) return;
+
+            // Limpa as páginas brancas vazias herdadas do PC
+            containerFundo.querySelectorAll('.pagina-branca').forEach(p => p.remove());
+
+            // Calcula o número de colunas (páginas de texto) criadas pelo navegador
+            const gapTexto = parseFloat(getComputedStyle(areaTexto).columnGap) || 0;
+            const larguraColunaTotal = areaTexto.clientWidth + gapTexto;
+            let numPaginasNecessarias = Math.round(areaTexto.scrollWidth / larguraColunaTotal);
+            if (numPaginasNecessarias < 1) numPaginasNecessarias = 1;
+
+            const paginasAtuais = containerFundo.querySelectorAll('.pagina-visual');
+
+            // Adiciona páginas visuais 3D consoante as necessárias
+            if (paginasAtuais.length < numPaginasNecessarias) {
+                const faltam = numPaginasNecessarias - paginasAtuais.length;
+                for (let i = 0; i < faltam; i++) {
+                    const novaPagina = document.createElement('div');
+                    novaPagina.className = 'pagina-visual';
+                    novaPagina.innerHTML = '<div class="numero-pagina"></div>';
+                    containerFundo.appendChild(novaPagina);
+                }
+            // Retira páginas excedentes
+            } else if (paginasAtuais.length > numPaginasNecessarias) {
+                const sobram = paginasAtuais.length - numPaginasNecessarias;
+                for (let i = 0; i < sobram; i++) {
+                    if (containerFundo.lastChild) containerFundo.removeChild(containerFundo.lastChild);
+                }
+            }
+
+            // Atualiza a numeração de todas as páginas corretamente no rodapé
+            containerFundo.querySelectorAll('.numero-pagina').forEach((el, index) => {
+                el.innerText = index + 1;
+            });
+        }
+
+        // Navegação de páginas baseada na largura exata do novo formato 9:16
         function saltarEsquerda() { 
             const s = document.querySelector('.secao-livro.ativo'); 
             if (s) {
                 const pagina = s.querySelector('.pagina-visual');
-                if (pagina) {
-                    // O movimento tem de considerar o espaçamento e a escala para ficar perfeito
-                    const salto = (pagina.offsetWidth + 40) * escalaAtualDaPagina;
-                    s.scrollBy({ left: -salto, behavior: 'smooth' }); 
-                }
+                if (pagina) s.scrollBy({ left: -(pagina.offsetWidth + 40), behavior: 'smooth' }); 
             }
         }
         
@@ -247,54 +341,17 @@
             const s = document.querySelector('.secao-livro.ativo'); 
             if (s) {
                 const pagina = s.querySelector('.pagina-visual');
-                if (pagina) {
-                    const salto = (pagina.offsetWidth + 40) * escalaAtualDaPagina;
-                    s.scrollBy({ left: salto, behavior: 'smooth' }); 
-                }
+                if (pagina) s.scrollBy({ left: pagina.offsetWidth + 40, behavior: 'smooth' }); 
             }
         }
 
-        // Rolar as páginas com a roda do rato
+        // Converter scroll do rato para horizontal
         document.getElementById('area-paginas').addEventListener('wheel', function(event) {
             if (event.deltaY !== 0) { 
                 const s = document.querySelector('.secao-livro.ativo'); 
                 if (s) { s.scrollLeft += event.deltaY; event.preventDefault(); } 
             }
         }, { passive: false });
-
-        // A Matemática da Proporção
-        function ajustarEscalaDasPaginas() {
-            const areaPaginas = document.getElementById('container-leitor-master');
-            if(!areaPaginas) return;
-
-            // 14cm no PC equivale a aproximadamente 530px
-            const larguraOriginalPagina = 530; 
-            const alturaOriginalPagina = 794; // 21cm
-
-            // Medidas disponíveis no ecrã atual
-            const larguraDisponivel = areaPaginas.clientWidth - 40; 
-            const alturaDisponivel = areaPaginas.clientHeight - 40;
-
-            let escala = 1;
-
-            if (window.innerWidth <= 900) {
-                // Modo telemóvel: a página reduz para caber inteira na altura e na largura do ecrã
-                const escalaLargura = (larguraDisponivel + 20) / larguraOriginalPagina;
-                const escalaAltura = alturaDisponivel / alturaOriginalPagina;
-                escala = Math.min(escalaLargura, escalaAltura);
-            } else {
-                // Modo PC: reduz apenas se o ecrã for muito pequeno na vertical
-                if (alturaDisponivel < alturaOriginalPagina) {
-                    escala = alturaDisponivel / alturaOriginalPagina;
-                }
-            }
-
-            escalaAtualDaPagina = escala;
-
-            document.querySelectorAll('.container-leitura').forEach(c => {
-                c.style.transform = `scale(${escala})`;
-            });
-        }
 
         function toggleMenuMobile() { 
             document.getElementById('coluna-menu').classList.toggle('aberto'); 
@@ -306,6 +363,7 @@
             telaBiblioteca.style.display = 'flex';
             btnVoltarBiblio.style.display = 'none';
             btnToggleMenu.style.display = 'none';
+            controlesFonte.style.display = 'none';
             nomeHeader.innerText = "Acervo Digital";
             document.getElementById('coluna-menu').classList.remove('aberto');
             document.getElementById('overlay').classList.remove('ativo');
